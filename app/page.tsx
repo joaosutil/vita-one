@@ -1,65 +1,105 @@
-import Image from "next/image";
+"use client";
+
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import { Mesh } from "three";
+import { Overlay } from "./components/Overlay";
+import { useStore, AreaName } from "./store/useStore";
+// Adicionamos 'Text' na importação
+import { Stars, Grid, Environment, Text } from "@react-three/drei";
+
+// Dicionário para traduzir os nomes nas placas 3D
+const labels: Record<AreaName, string> = {
+  health: "SAÚDE",
+  work: "TRABALHO",
+  finance: "FINANÇAS",
+  personal: "PESSOAL",
+};
+
+function LifeSphere({
+  area,
+  position,
+}: {
+  area: AreaName;
+  position: [number, number, number];
+}) {
+  const meshRef = useRef<Mesh>(null);
+  const data = useStore((state) => state[area]);
+
+  useFrame((state, delta) => {
+    if (!meshRef.current) return;
+    const rotationSpeed = (data.energy / 100) * 2;
+    meshRef.current.rotation.y += delta * (0.2 + rotationSpeed);
+    meshRef.current.rotation.x += delta * (0.1 + rotationSpeed * 0.5);
+    const size = 0.5 + (data.time / 100) * 1.2;
+    meshRef.current.scale.lerp({ x: size, y: size, z: size }, 0.1);
+  });
+
+  const getColor = () => {
+    if (data.satisfaction < 40) return "#ff4444";
+    if (data.satisfaction < 70) return "#ffcc00";
+    return "#00cc88";
+  };
+
+  return (
+    <group position={position}>
+      {/* A Esfera */}
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshStandardMaterial
+          color={getColor()}
+          roughness={0.2}
+          metalness={0.8}
+        />
+      </mesh>
+
+      {/* A Placa de Texto (Flutuando acima da esfera) */}
+      <Text
+        position={[0, 1.5, 0]}
+        fontSize={0.5}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+        renderOrder={1} // Prioridade na fila de desenho
+        material-depthTest={false} // Mágica: "Não verifique se algo está na minha frente"
+      >
+        {labels[area]}
+      </Text>
+    </group>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="h-screen w-full bg-slate-950 relative">
+      <Overlay />
+      <Canvas camera={{ position: [0, 2, 8], fov: 60 }} dpr={[1, 2]}>
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[10, 10, 5]} intensity={1.5} />
+        <Stars
+          radius={100}
+          depth={50}
+          count={1000}
+          factor={4}
+          saturation={0}
+          fade
+          speed={1}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        <Grid
+          position={[0, -4, 0]}
+          args={[10, 10]}
+          cellColor="#ffffff"
+          sectionColor="#4444ff"
+          fadeDistance={10}
+          fadeStrength={1}
+        />
+        <Environment preset="city" blur={0.5} />
+
+        <LifeSphere area="health" position={[-2, 1, 0]} />
+        <LifeSphere area="work" position={[2, 1, 0]} />
+        <LifeSphere area="finance" position={[-2, -3, 0]} />
+        <LifeSphere area="personal" position={[2, -3, 0]} />
+      </Canvas>
     </div>
   );
 }
