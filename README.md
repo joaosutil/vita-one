@@ -42,7 +42,7 @@ Pré-requisitos: Node.js instalado.
 
 1.  **Clone o repositório**
     ```bash
-    git clone [https://github.com/seu-usuario/vita-one.git](https://github.com/seu-usuario/vita-one.git)
+    git clone [https://github.com/joaosutil/vita-one.git](https://github.com/joaosutil/vita-one.git)
     cd vita-one
     ```
 
@@ -63,7 +63,7 @@ Pré-requisitos: Node.js instalado.
 
 ## 📂 Estrutura do Projeto
 
-vita-one/ ├── app/ │ ├── components/ │ │ └── Overlay.tsx # Interface de UI (Sliders e Abas) │ ├── store/ │ │ └── useStore.ts # Gerenciamento de Estado (Zustand) │ ├── globals.css # Estilos globais e Tailwind │ ├── layout.tsx # Layout raiz │ └── page.tsx # Cena 3D Principal (Canvas) ├── public/ # Assets estáticos └── ...arquivos de config
+ ```vita-one/ ├── app/ │ ├── components/ │ │ └── Overlay.tsx # Interface de UI (Sliders e Abas) │ ├── store/ │ │ └── useStore.ts # Gerenciamento de Estado (Zustand) │ ├── globals.css # Estilos globais e Tailwind │ ├── layout.tsx # Layout raiz │ └── page.tsx # Cena 3D Principal (Canvas) ├── public/ # Assets estáticos └── ...arquivos de config ```
 
 ## 🔮 Futuras Melhorias
 
@@ -82,4 +82,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-Desenvolvido com 💜 por [Seu Nome]
+Desenvolvido com 💜 por [Master]
